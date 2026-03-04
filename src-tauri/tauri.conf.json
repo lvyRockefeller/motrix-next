@@ -27,12 +27,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": [
-      "dmg",
-      "nsis",
-      "appimage",
-      "deb"
-    ],
+    "targets": "all",
     "createUpdaterArtifacts": true,
     "externalBin": [
       "binaries/aria2c"
