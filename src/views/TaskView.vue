@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @fileoverview Task list view with polling, task actions, and file delete confirmation. */
-import { computed, watch, onMounted, onBeforeUnmount, ref, h } from 'vue'
+import { computed, watch, onMounted, onBeforeUnmount, ref, h, provide } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTaskStore } from '@/stores/task'
 import { useAppStore } from '@/stores/app'
@@ -26,6 +26,9 @@ const appStore = useAppStore()
 const preferenceStore = usePreferenceStore()
 const dialog = useDialog()
 const message = useAppMessage()
+
+const stoppingGids = ref<string[]>([])
+provide('stoppingGids', stoppingGids)
 
 const subnavs = computed(() => [
   { key: 'active', title: t('task.active') || 'Active' },
@@ -144,8 +147,18 @@ async function handleShowInFolder(task: Aria2Task) {
     message.warning(t('task.file-not-exist'))
   }
 }
-function handleStopSeeding(task: Aria2Task) {
-  taskStore.stopSeeding(task.gid).catch(console.error)
+async function handleStopSeeding(task: Aria2Task) {
+  if (stoppingGids.value.includes(task.gid)) return // prevent double-click
+  stoppingGids.value = [...stoppingGids.value, task.gid]
+  try {
+    await taskStore.stopSeeding(task.gid)
+    // Don't remove from stoppingGids — let the spinner run
+    // until the task transitions to 'complete' and vanishes from the list
+  } catch (e) {
+    console.error(e)
+    // Only clear on error so user can retry
+    stoppingGids.value = stoppingGids.value.filter((g) => g !== task.gid)
+  }
 }
 </script>
 
