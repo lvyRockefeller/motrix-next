@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAppStore } from '@/stores/app'
-import { usePreferenceStore } from '@/stores/preference'
 import { bytesToSize } from '@shared/utils'
 import { NIcon } from 'naive-ui'
 import { SpeedometerOutline, ArrowUpOutline, ArrowDownOutline } from '@vicons/ionicons5'
 
 const appStore = useAppStore()
-const preferenceStore = usePreferenceStore()
 
 const stat = computed(() => appStore.stat)
 const isStopped = computed(() => stat.value.numActive === 0)
-const engineMode = computed(() => preferenceStore.engineMode)
 const downloadSpeed = computed(() => bytesToSize(String(stat.value.downloadSpeed)))
 const uploadSpeed = computed(() => bytesToSize(String(stat.value.uploadSpeed)))
 </script>

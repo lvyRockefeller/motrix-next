@@ -1,23 +1,26 @@
+/** @fileoverview Aria2 JSON-RPC client wrapper providing typed API for task management. */
 import { Aria2 } from '@shared/aria2'
 import { TASK_STATUS } from '@shared/constants'
 import {
     changeKeysToCamelCase,
-    mergeTaskResult,
     formatOptionsForEngine,
 } from '@shared/utils'
 
 let client: Aria2 | null = null
 let engineReady = false
 
+/** Returns true when the aria2 RPC connection has been established. */
 export function isEngineReady(): boolean {
     return engineReady
 }
 
+/** Returns the initialized Aria2 client instance or throws if not yet initialized. */
 export function getClient(): Aria2 {
     if (!client) throw new Error('Aria2 client not initialized')
     return client
 }
 
+/** Creates and opens a new Aria2 RPC client connection. */
 export async function initClient(options: { port: number; secret: string }) {
     client = new Aria2({
         host: '127.0.0.1',
@@ -29,6 +32,7 @@ export async function initClient(options: { port: number; secret: string }) {
     return client
 }
 
+/** Closes the active Aria2 RPC connection and resets the client. */
 export async function closeClient() {
     if (client) {
         await client.close()
@@ -36,6 +40,7 @@ export async function closeClient() {
     }
 }
 
+/** Retrieves aria2 engine version and list of enabled features. */
 export async function getVersion() {
     return getClient().call('getVersion') as Promise<{ version: string; enabledFeatures: string[] }>
 }
@@ -111,6 +116,7 @@ export async function fetchTaskItemWithPeers(params: { gid: string }) {
     return { ...task, peers }
 }
 
+/** Adds one or more URI downloads with per-URI output filename overrides. */
 export async function addUri(params: { uris: string[]; outs: string[]; options: Record<string, unknown> }) {
     const { uris, outs, options } = params
     const engineOptions = formatOptionsForEngine(options)
@@ -122,6 +128,7 @@ export async function addUri(params: { uris: string[]; outs: string[]; options: 
     return Promise.all(tasks)
 }
 
+/** Adds a torrent download from a base64-encoded .torrent file. */
 export async function addTorrent(params: { torrent: string; options: Record<string, unknown> }) {
     const engineOptions = formatOptionsForEngine(params.options)
     return getClient().call('addTorrent', params.torrent, [], engineOptions)
@@ -191,11 +198,13 @@ export async function batchRemoveTask(params: { gids: string[] }) {
     return getClient().multicall(calls)
 }
 
+/** Fetches user preferences from the Tauri persistent store. */
 export async function fetchPreference() {
     const { invoke } = await import('@tauri-apps/api/core')
     return invoke('get_app_config') as Promise<Record<string, unknown>>
 }
 
+/** Saves updated user preferences to the Tauri persistent store. */
 export async function savePreference(config: Record<string, unknown>) {
     const { invoke } = await import('@tauri-apps/api/core')
     return invoke('save_preference', { config })

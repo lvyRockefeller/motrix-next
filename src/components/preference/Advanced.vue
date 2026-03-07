@@ -23,12 +23,12 @@ import { fetchBtTrackerFromSource, convertTrackerDataToLine } from '@shared/util
 import userAgentMap from '@shared/ua'
 import {
   NForm, NFormItem, NInput, NInputNumber, NInputGroup, NSwitch, NSelect, NTag,
-  NButton, NButtonGroup, NSpace, NDivider, NIcon, NCheckbox,
+  NButton, NButtonGroup, NSpace, NDivider, NIcon,
   useDialog,
 } from 'naive-ui'
 import { useAppMessage } from '@/composables/useAppMessage'
 import {
-  SyncOutline, DiceOutline, FolderOpenOutline, LinkOutline,
+  SyncOutline, DiceOutline,
 } from '@vicons/ionicons5'
 
 const { t } = useI18n()

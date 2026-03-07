@@ -2,39 +2,20 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { EMPTY_STRING, TASK_STATUS } from '@shared/constants'
 import { checkTaskIsBT, intersection } from '@shared/utils'
+import { logger } from '@shared/logger'
+import type { Aria2Task, Aria2File, Aria2Peer, AddUriParams, AddTorrentParams, TaskOptionParams } from '@shared/types'
 
-interface TaskItem {
-    gid: string
-    status: string
-    totalLength: string
-    completedLength: string
-    downloadSpeed: string
-    uploadSpeed: string
-    files: TaskFile[]
-    bittorrent?: { info?: { name: string }; announceList?: string[] }
-    infoHash?: string
-    seeder?: string
-    peers?: unknown[]
-    [key: string]: unknown
-}
+export type { Aria2Task, Aria2File, Aria2Peer }
 
-interface TaskFile {
-    path: string
-    length: string
-    selected: string
-    uris: { uri: string }[]
-    [key: string]: unknown
-}
-
-interface Api {
-    fetchTaskList: (params: { type: string }) => Promise<TaskItem[]>
-    fetchTaskItem: (params: { gid: string }) => Promise<TaskItem>
-    fetchTaskItemWithPeers: (params: { gid: string }) => Promise<TaskItem>
-    addUri: (params: { uris: string[]; outs: string[]; options: Record<string, unknown> }) => Promise<unknown>
-    addTorrent: (params: { torrent: string; options: Record<string, unknown> }) => Promise<unknown>
+interface TaskApi {
+    fetchTaskList: (params: { type: string }) => Promise<Aria2Task[]>
+    fetchTaskItem: (params: { gid: string }) => Promise<Aria2Task>
+    fetchTaskItemWithPeers: (params: { gid: string }) => Promise<Aria2Task>
+    addUri: (params: AddUriParams) => Promise<unknown>
+    addTorrent: (params: AddTorrentParams) => Promise<unknown>
     addMetalink: (params: { metalink: string; options: Record<string, unknown> }) => Promise<unknown>
     getOption: (params: { gid: string }) => Promise<Record<string, unknown>>
-    changeOption: (params: { gid: string; options: Record<string, unknown> }) => Promise<unknown>
+    changeOption: (params: TaskOptionParams) => Promise<unknown>
     removeTask: (params: { gid: string }) => Promise<unknown>
     forcePauseTask: (params: { gid: string }) => Promise<unknown>
     pauseTask: (params: { gid: string }) => Promise<unknown>
@@ -49,7 +30,7 @@ interface Api {
     removeTaskRecord: (params: { gid: string }) => Promise<unknown>
     purgeTaskRecord: () => Promise<unknown>
     saveSession: () => Promise<unknown>
-    fetchActiveTaskList: () => Promise<TaskItem[]>
+    fetchActiveTaskList: () => Promise<Aria2Task[]>
 }
 
 export const useTaskStore = defineStore('task', () => {
@@ -57,16 +38,16 @@ export const useTaskStore = defineStore('task', () => {
     const taskDetailVisible = ref(false)
     const currentTaskGid = ref(EMPTY_STRING)
     const enabledFetchPeers = ref(false)
-    const currentTaskItem = ref<TaskItem | null>(null)
-    const currentTaskFiles = ref<TaskFile[]>([])
-    const currentTaskPeers = ref<unknown[]>([])
+    const currentTaskItem = ref<Aria2Task | null>(null)
+    const currentTaskFiles = ref<Aria2File[]>([])
+    const currentTaskPeers = ref<Aria2Peer[]>([])
     const seedingList = ref<string[]>([])
-    const taskList = ref<TaskItem[]>([])
+    const taskList = ref<Aria2Task[]>([])
     const selectedGidList = ref<string[]>([])
 
-    let api: Api
+    let api: TaskApi
 
-    function setApi(a: Api) {
+    function setApi(a: TaskApi) {
         api = a
     }
 
@@ -81,20 +62,20 @@ export const useTaskStore = defineStore('task', () => {
         try {
             const data = await api.fetchTaskList({ type: currentList.value })
             taskList.value = data
-            const gids = data.map((task) => task.gid)
+            const gids = data.map((task: Aria2Task) => task.gid)
             selectedGidList.value = intersection(selectedGidList.value, gids)
             if (taskDetailVisible.value && currentTaskGid.value) {
                 try {
                     const fresh = await api.fetchTaskItemWithPeers({ gid: currentTaskGid.value })
                     if (fresh) updateCurrentTaskItem(fresh)
                 } catch {
-                    const fresh = data.find((t) => t.gid === currentTaskGid.value)
+                    const fresh = data.find((t: Aria2Task) => t.gid === currentTaskGid.value)
                     if (fresh) updateCurrentTaskItem(fresh)
                 }
             }
 
         } catch (e) {
-            console.warn((e as Error).message)
+            logger.warn('TaskStore.fetchList', (e as Error).message)
         }
     }
 
@@ -113,7 +94,7 @@ export const useTaskStore = defineStore('task', () => {
         updateCurrentTaskItem(data)
     }
 
-    function showTaskDetail(task: TaskItem) {
+    function showTaskDetail(task: Aria2Task) {
         updateCurrentTaskItem(task)
         currentTaskGid.value = task.gid
         taskDetailVisible.value = true
@@ -128,7 +109,7 @@ export const useTaskStore = defineStore('task', () => {
         taskDetailVisible.value = false
     }
 
-    function updateCurrentTaskItem(task: TaskItem | null) {
+    function updateCurrentTaskItem(task: Aria2Task | null) {
         currentTaskItem.value = task
         if (task) {
             currentTaskFiles.value = task.files
@@ -163,7 +144,7 @@ export const useTaskStore = defineStore('task', () => {
         return api.changeOption(payload)
     }
 
-    async function removeTask(task: TaskItem) {
+    async function removeTask(task: Aria2Task) {
         if (task.gid === currentTaskGid.value) hideTaskDetail()
         try {
             await api.removeTask({ gid: task.gid })
@@ -173,8 +154,8 @@ export const useTaskStore = defineStore('task', () => {
         }
     }
 
-    async function pauseTask(task: TaskItem) {
-        const isBT = checkTaskIsBT(task as never)
+    async function pauseTask(task: Aria2Task) {
+        const isBT = checkTaskIsBT(task)
         const promise = isBT ? api.forcePauseTask({ gid: task.gid }) : api.pauseTask({ gid: task.gid })
         try {
             await promise
@@ -184,7 +165,7 @@ export const useTaskStore = defineStore('task', () => {
         }
     }
 
-    async function resumeTask(task: TaskItem) {
+    async function resumeTask(task: Aria2Task) {
         try {
             await api.resumeTask({ gid: task.gid })
         } finally {
@@ -213,7 +194,7 @@ export const useTaskStore = defineStore('task', () => {
         }
     }
 
-    async function toggleTask(task: TaskItem) {
+    async function toggleTask(task: Aria2Task) {
         const { status } = task
         if (status === TASK_STATUS.ACTIVE) return pauseTask(task)
         if (status === TASK_STATUS.WAITING || status === TASK_STATUS.PAUSED) return resumeTask(task)
@@ -234,7 +215,7 @@ export const useTaskStore = defineStore('task', () => {
         return changeTaskOption({ gid, options: { seedTime: 0 } })
     }
 
-    async function removeTaskRecord(task: TaskItem) {
+    async function removeTaskRecord(task: Aria2Task) {
         const { gid, status } = task
         if (gid === currentTaskGid.value) hideTaskDetail()
         const { ERROR, COMPLETE, REMOVED } = TASK_STATUS

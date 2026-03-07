@@ -9,8 +9,9 @@ import {
   FolderOpenOutline
 } from '@vicons/ionicons5'
 import { type Component } from 'vue'
+import type { Aria2Task } from '@shared/types'
 
-const props = defineProps<{ task: Record<string, unknown>; status: string }>()
+const props = defineProps<{ task: Aria2Task; status: string }>()
 const emit = defineEmits<{
   pause: []; resume: []; delete: []; 'delete-record': [];
   'copy-link': []; 'show-info': []; folder: []; 'stop-seeding': []

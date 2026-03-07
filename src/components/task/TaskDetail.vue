@@ -15,13 +15,13 @@ import {
   InformationCircleOutline, PulseOutline, DocumentOutline,
   PeopleOutline, ServerOutline
 } from '@vicons/ionicons5'
-import TaskItemActions from './TaskItemActions.vue'
 import TaskGraphic from './TaskGraphic.vue'
+import type { Aria2Task, Aria2File } from '@shared/types'
 
 const props = defineProps<{
   show: boolean
-  task: Record<string, unknown> | null
-  files: unknown[]
+  task: Aria2Task | null
+  files: Aria2File[]
 }>()
 const emit = defineEmits<{ close: [] }>()
 
@@ -51,17 +51,17 @@ function switchTab(key: string) {
   activeTab.value = key
 }
 
-const isBT = computed(() => props.task ? checkTaskIsBT(props.task as never) : false)
+const isBT = computed(() => props.task ? checkTaskIsBT(props.task) : false)
 
 const prevTaskGid = ref('')
-watch(() => props.task?.gid as string | undefined, (gid) => {
+watch(() => props.task?.gid, (gid) => {
   if (gid && gid !== prevTaskGid.value) {
     activeTab.value = 'general'
     prevTaskGid.value = gid
   }
 })
-const isSeeder = computed(() => props.task ? checkTaskIsSeeder(props.task as never) : false)
-const taskStatusKey = computed(() => isSeeder.value ? TASK_STATUS.SEEDING : (props.task?.status as string))
+const isSeeder = computed(() => props.task ? checkTaskIsSeeder(props.task) : false)
+const taskStatusKey = computed(() => isSeeder.value ? TASK_STATUS.SEEDING : (props.task?.status))
 const taskStatus = computed(() => {
   const key = taskStatusKey.value
   const translated = t(`task.status-${key}`)
@@ -69,10 +69,10 @@ const taskStatus = computed(() => {
 })
 const isActive = computed(() => props.task?.status === TASK_STATUS.ACTIVE)
 const taskFullName = computed(() =>
-  props.task ? getTaskName(props.task as never, { defaultName: 'Unknown', maxLen: -1 }) : ''
+  props.task ? getTaskName(props.task, { defaultName: 'Unknown', maxLen: -1 }) : ''
 )
 const percent = computed(() =>
-  props.task ? calcProgress(props.task.totalLength as number, props.task.completedLength as number) : 0
+  props.task ? calcProgress(props.task.totalLength, props.task.completedLength) : 0
 )
 
 const remaining = computed(() => {
@@ -104,7 +104,7 @@ const ratio = computed(() => {
 
 const btInfo = computed(() => {
   if (!isBT.value || !props.task) return null
-  return props.task.bittorrent as Record<string, unknown> | undefined
+  return props.task.bittorrent
 })
 
 const statusTagType = computed(() => {
@@ -117,17 +117,16 @@ const statusTagType = computed(() => {
 })
 
 const fileList = computed(() =>
-  (props.files || []).map((item: unknown) => {
-    const f = item as Record<string, unknown>
-    const name = getFileName(f.path as string)
+  (props.files || []).map((item: Aria2File) => {
+    const name = getFileName(item.path)
     return {
-      idx: Number(f.index),
+      idx: Number(item.index),
       name,
       extension: '.' + getFileExtension(name),
-      length: Number(f.length),
-      completedLength: Number(f.completedLength),
-      percent: calcProgress(f.length as number, f.completedLength as number, 1),
-      selected: f.selected === 'true',
+      length: Number(item.length),
+      completedLength: Number(item.completedLength),
+      percent: calcProgress(item.length, item.completedLength, 1),
+      selected: item.selected === 'true',
     }
   })
 )
@@ -163,9 +162,9 @@ const peerColumns = [
 
 const announceList = computed(() => {
   if (!isBT.value || !btInfo.value) return ''
-  const list = btInfo.value.announceList as string[][]
+  const list = btInfo.value.announceList
   if (!list) return ''
-  return list.map((group) => (Array.isArray(group) ? group[0] : group)).join('\n')
+  return list.join('\n')
 })
 
 function handleClose() {

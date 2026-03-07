@@ -13,6 +13,7 @@ import {
     isArray,
 } from 'lodash-es'
 
+/** @fileoverview Utility functions for download task metadata, formatting, file filtering, and config management. */
 import { userKeys, systemKeys, needRestartKeys } from '@shared/configKeys'
 import {
     APP_THEME,
@@ -31,6 +32,7 @@ import {
     SUPPORT_RTL_LOCALES,
 } from '@shared/constants'
 
+/** Converts raw byte count to human-readable size string (e.g. "1.5 GB"). */
 export const bytesToSize = (bytes: string | number, precision = 1): string => {
     const b = parseInt(String(bytes), 10)
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
@@ -40,6 +42,7 @@ export const bytesToSize = (bytes: string | number, precision = 1): string => {
     return `${(b / 1024 ** i).toFixed(precision)} ${sizes[i]}`
 }
 
+/** Extracts the unit suffix (K, M, G) from a formatted speed string. */
 export const extractSpeedUnit = (speed = ''): string => {
     if (parseInt(speed) === 0) return 'K'
     const regex = /^(\d+\.?\d*)([KMG])$/
@@ -48,6 +51,7 @@ export const extractSpeedUnit = (speed = ''): string => {
     return match[2]
 }
 
+/** Converts an aria2 hex bitfield string to a download completion percentage. */
 export const bitfieldToPercent = (text: string): string => {
     const len = text.length
     if (len === 0) return '0'
@@ -63,6 +67,7 @@ export const bitfieldToPercent = (text: string): string => {
     return Math.floor((one / (4 * len)) * 100).toString()
 }
 
+/** Converts an aria2 hex bitfield to a visual block progress graphic. */
 export const bitfieldToGraphic = (text: string): string => {
     const len = text.length
     let result = ''
@@ -113,6 +118,7 @@ export const peerIdParser = (str: string): string => {
     return UNKNOWN_PEERID_NAME
 }
 
+/** Calculates download progress as a percentage. */
 export const calcProgress = (totalLength: string | number, completedLength: string | number, decimal = 2): number => {
     const total = parseInt(String(totalLength), 10)
     const completed = parseInt(String(completedLength), 10)
@@ -121,6 +127,7 @@ export const calcProgress = (totalLength: string | number, completedLength: stri
     return parseFloat(percentage.toFixed(decimal))
 }
 
+/** Calculates upload-to-download ratio for seeding tasks. */
 export const calcRatio = (totalLength: string | number, uploadLength: string | number): number => {
     const total = parseInt(String(totalLength), 10)
     const upload = parseInt(String(uploadLength), 10)
@@ -190,27 +197,12 @@ export const ellipsis = (str = '', maxLen = 64): string => {
     return str
 }
 
-interface TaskFile {
-    path: string
-    selected?: boolean
-    uris?: { uri: string }[]
-    extension?: string
-}
+import type { Aria2Task, Aria2File, EnrichedFile } from '@shared/types'
 
-interface Task {
-    files: TaskFile[]
-    bittorrent?: { info?: { name: string }; announceList?: string[] }
-    infoHash?: string
-    seeder?: string
-    totalLength?: string | number
-    completedLength?: string | number
-    downloadSpeed?: string | number
-    uploadLength?: string | number
-    status?: string
-}
+/** Returns the selected file indices as a comma-separated string for aria2 select-file option. */
 
-export const getFileSelection = (files: TaskFile[] = []): string => {
-    const selectedFiles = files.filter((file) => file.selected)
+export const getFileSelection = (files: Aria2File[] = []): string => {
+    const selectedFiles = files.filter((file) => file.selected === 'true')
     if (files.length === 0 || selectedFiles.length === 0) return NONE_SELECTED_FILES
     if (files.length === selectedFiles.length) return SELECTED_ALL_FILES
     const indexArr: number[] = []
@@ -218,7 +210,8 @@ export const getFileSelection = (files: TaskFile[] = []): string => {
     return indexArr.join(',')
 }
 
-export const getFileNameFromFile = (file?: TaskFile): string => {
+/** Extracts the filename from an Aria2File's path or first URI. */
+export const getFileNameFromFile = (file?: Aria2File): string => {
     if (!file) return ''
     let { path } = file
     if (!path && file.uris && file.uris.length > 0) {
@@ -230,7 +223,8 @@ export const getFileNameFromFile = (file?: TaskFile): string => {
     return path.substring(index + 1)
 }
 
-export const getTaskName = (task: Task | null, options: { defaultName?: string; maxLen?: number } = {}): string => {
+/** Resolves a human-readable task name from BT info or file path. */
+export const getTaskName = (task: Aria2Task | null, options: { defaultName?: string; maxLen?: number } = {}): string => {
     const o = { defaultName: '', maxLen: 64, ...options }
     const { defaultName, maxLen } = o
     let result = defaultName
@@ -250,21 +244,25 @@ export const getTaskName = (task: Task | null, options: { defaultName?: string; 
     return result
 }
 
-export const isMagnetTask = (task: Task): boolean => {
+/** Returns true if the task is a magnet link still resolving metadata. */
+export const isMagnetTask = (task: Aria2Task): boolean => {
     const { bittorrent } = task
     return !!bittorrent && !bittorrent.info
 }
 
-export const checkTaskIsSeeder = (task: Task): boolean => {
+/** Returns true if the task is actively seeding (BT upload-only). */
+export const checkTaskIsSeeder = (task: Aria2Task): boolean => {
     const { bittorrent, seeder } = task
     return !!bittorrent && seeder === 'true'
 }
 
-export const checkTaskIsBT = (task: Partial<Task> = {}): boolean => {
+/** Returns true if the task is a BitTorrent download (has bittorrent metadata). */
+export const checkTaskIsBT = (task: Partial<Aria2Task> = {} as Partial<Aria2Task>): boolean => {
     return !!task.bittorrent
 }
 
-export const buildMagnetLink = (task: Task, withTracker = false, btTracker: string[] = []): string => {
+/** Builds a magnet link from a BT task, optionally including tracker URLs. */
+export const buildMagnetLink = (task: Aria2Task, withTracker = false, btTracker: string[] = []): string => {
     const { bittorrent, infoHash } = task
     const info = bittorrent?.info
 
@@ -283,7 +281,8 @@ export const buildMagnetLink = (task: Task, withTracker = false, btTracker: stri
     return params.join('&')
 }
 
-export const getTaskUri = (task: Task, withTracker = false): string => {
+/** Returns the primary download URI or magnet link for a task. */
+export const getTaskUri = (task: Aria2Task, withTracker = false): string => {
     const { files } = task
     if (checkTaskIsBT(task)) {
         return buildMagnetLink(task, withTracker)
@@ -295,7 +294,7 @@ export const getTaskUri = (task: Task, withTracker = false): string => {
     return ''
 }
 
-export const checkTaskTitleIsEmpty = (task: Task): boolean => {
+export const checkTaskTitleIsEmpty = (task: Aria2Task): boolean => {
     const { files, bittorrent } = task
     const [file] = files
     const { path } = file
@@ -397,20 +396,20 @@ export const convertLineToComma = (text = ''): string => {
     return text.trim().replace(/(?:\r\n|\r|\n)/g, ',')
 }
 
-export const filterVideoFiles = (files: TaskFile[] = []): TaskFile[] => {
+export const filterVideoFiles = (files: EnrichedFile[] = []): EnrichedFile[] => {
     const suffix = [...VIDEO_SUFFIXES, ...SUB_SUFFIXES]
     return files.filter((item) => item.extension && suffix.includes(item.extension))
 }
 
-export const filterAudioFiles = (files: TaskFile[] = []): TaskFile[] => {
+export const filterAudioFiles = (files: EnrichedFile[] = []): EnrichedFile[] => {
     return files.filter((item) => item.extension && AUDIO_SUFFIXES.includes(item.extension))
 }
 
-export const filterImageFiles = (files: TaskFile[] = []): TaskFile[] => {
+export const filterImageFiles = (files: EnrichedFile[] = []): EnrichedFile[] => {
     return files.filter((item) => item.extension && IMAGE_SUFFIXES.includes(item.extension))
 }
 
-export const filterDocumentFiles = (files: TaskFile[] = []): TaskFile[] => {
+export const filterDocumentFiles = (files: EnrichedFile[] = []): EnrichedFile[] => {
     return files.filter((item) => item.extension && DOCUMENT_SUFFIXES.includes(item.extension))
 }
 
@@ -425,6 +424,7 @@ export const needCheckCopyright = (links = ''): boolean => {
     return avs.length > 0
 }
 
+/** Decodes a Thunder (迅雷) protocol link to its original HTTP/FTP URL. */
 export const decodeThunderLink = (url = ''): string => {
     if (!url.startsWith('thunder://')) return url
     let result = url.trim()
@@ -439,6 +439,7 @@ export const splitTaskLinks = (links = ''): string[] => {
     return temp.map((item) => decodeThunderLink(item))
 }
 
+/** Returns true if the content string contains any recognized download protocol tag. */
 export const detectResource = (content: string): boolean => {
     return RESOURCE_TAGS.some((type) => content.includes(type))
 }
@@ -464,7 +465,7 @@ export const getLangDirection = (locale = 'en-US'): string => {
     return isRTL(locale) ? 'rtl' : 'ltr'
 }
 
-export const listTorrentFiles = (files: TaskFile[]) => {
+export const listTorrentFiles = (files: Aria2File[]) => {
     return files.map((file, index) => {
         const extension = getFileExtension(file.path)
         return {

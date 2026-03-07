@@ -7,35 +7,36 @@ import { exists } from '@tauri-apps/plugin-fs'
 import { NProgress, NIcon } from 'naive-ui'
 import { ArrowUpOutline, ArrowDownOutline, GitNetworkOutline, MagnetOutline, AlertCircleOutline, CloudUploadOutline, CheckmarkCircleOutline, TrashOutline } from '@vicons/ionicons5'
 import TaskItemActions from './TaskItemActions.vue'
+import type { Aria2Task } from '@shared/types'
 
-const props = defineProps<{ task: Record<string, unknown> }>()
+const props = defineProps<{ task: Aria2Task }>()
 const emit = defineEmits<{
-  pause: [task: Record<string, unknown>]
-  resume: [task: Record<string, unknown>]
-  delete: [task: Record<string, unknown>]
-  'delete-record': [task: Record<string, unknown>]
-  'copy-link': [task: Record<string, unknown>]
-  'show-info': [task: Record<string, unknown>]
-  folder: [task: Record<string, unknown>]
-  'stop-seeding': [task: Record<string, unknown>]
+  pause: [task: Aria2Task]
+  resume: [task: Aria2Task]
+  delete: [task: Aria2Task]
+  'delete-record': [task: Aria2Task]
+  'copy-link': [task: Aria2Task]
+  'show-info': [task: Aria2Task]
+  folder: [task: Aria2Task]
+  'stop-seeding': [task: Aria2Task]
 }>()
 
 const { t } = useI18n()
 
 const taskFullName = computed(() =>
-  getTaskName(props.task as never, { defaultName: t('task.get-task-name') || 'Unknown', maxLen: -1 })
+  getTaskName(props.task, { defaultName: t('task.get-task-name') || 'Unknown', maxLen: -1 })
 )
 
-const isSeeder = computed(() => checkTaskIsSeeder(props.task as never))
-const isBT = computed(() => checkTaskIsBT(props.task as never))
+const isSeeder = computed(() => checkTaskIsSeeder(props.task))
+const isBT = computed(() => checkTaskIsBT(props.task))
 const taskStatus = computed(() => isSeeder.value ? TASK_STATUS.SEEDING : (props.task.status as string))
 const isActive = computed(() => props.task.status === TASK_STATUS.ACTIVE)
 
-const percent = computed(() => calcProgress(props.task.totalLength as number, props.task.completedLength as number))
-const completedSize = computed(() => bytesToSize(props.task.completedLength as string, 2))
-const totalSize = computed(() => bytesToSize(props.task.totalLength as string, 2))
-const downloadSpeed = computed(() => bytesToSize(props.task.downloadSpeed as string))
-const uploadSpeed = computed(() => bytesToSize(props.task.uploadSpeed as string))
+const percent = computed(() => calcProgress(props.task.totalLength, props.task.completedLength))
+const completedSize = computed(() => bytesToSize(props.task.completedLength, 2))
+const totalSize = computed(() => bytesToSize(props.task.totalLength, 2))
+const downloadSpeed = computed(() => bytesToSize(props.task.downloadSpeed))
+const uploadSpeed = computed(() => bytesToSize(props.task.uploadSpeed))
 
 const remaining = computed(() => {
   if (!isActive.value) return 0

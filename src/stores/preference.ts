@@ -9,6 +9,7 @@ import {
 } from '@shared/utils'
 import { fetchBtTrackerFromSource } from '@shared/utils/tracker'
 import { MAX_NUM_OF_DIRECTORIES } from '@shared/constants'
+import { logger } from '@shared/logger'
 
 const STORE_KEY = 'preferences'
 
@@ -33,7 +34,7 @@ export const usePreferenceStore = defineStore('preference', () => {
                 config.value = { ...config.value, ...saved }
             }
         } catch (e) {
-            console.error('loadPreference error:', e)
+            logger.error('PreferenceStore.loadPreference', e)
         }
     }
 
@@ -43,7 +44,7 @@ export const usePreferenceStore = defineStore('preference', () => {
             await store.set(STORE_KEY, config.value)
             await store.save()
         } catch (e) {
-            console.error('savePreference error:', e)
+            logger.error('PreferenceStore.savePreference', e)
         }
     }
 

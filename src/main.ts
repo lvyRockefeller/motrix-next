@@ -7,6 +7,7 @@ import { useTaskStore } from './stores/task'
 import { useAppStore } from './stores/app'
 import aria2Api, { initClient } from './api/aria2'
 import { ENGINE_RPC_PORT } from '@shared/constants'
+import { logger } from '@shared/logger'
 import App from './App.vue'
 import 'virtual:uno.css'
 import './styles/variables.css'
@@ -66,7 +67,7 @@ async function autoCheckForUpdate() {
             appStore.pendingUpdate = update
         }
     } catch (e) {
-        console.warn('[updater] auto check failed:', e)
+        logger.warn('Updater', 'auto check failed: ' + (e as Error).message)
     }
 }
 
@@ -112,19 +113,19 @@ preferenceStore.loadPreference().then(async () => {
         })
         await invoke('start_engine_command')
     } catch (e) {
-        console.error('[aria2] Failed to start engine:', e)
+        logger.error('Engine', e)
     }
 
     const ready = await waitForEngine(port, secret)
     if (!ready) {
-        console.error('[aria2] Engine did not become ready after retries')
+        logger.error('Engine', 'Engine did not become ready after retries')
     }
 
     try {
         await initClient({ port, secret })
         console.log('[aria2] RPC client connected via WebSocket on port', port)
     } catch (e) {
-        console.warn('[aria2] WebSocket failed, using HTTP fallback:', e)
+        logger.warn('Engine', 'WebSocket failed, using HTTP fallback: ' + (e as Error).message)
     }
 
     try {
@@ -137,7 +138,7 @@ preferenceStore.loadPreference().then(async () => {
             appStore.handleDeepLinkUrls(urls)
         })
     } catch (e) {
-        console.warn('[deep-link] setup failed:', e)
+        logger.warn('DeepLink', 'setup failed: ' + (e as Error).message)
     }
 
     autoCheckForUpdate()

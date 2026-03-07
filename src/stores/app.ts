@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { ADD_TASK_TYPE } from '@shared/constants'
 import { invoke } from '@tauri-apps/api/core'
-import { bytesToSize, decodeThunderLink } from '@shared/utils'
+import { decodeThunderLink } from '@shared/utils'
+import { logger } from '@shared/logger'
 
 const BASE_INTERVAL = 1000
 const PER_INTERVAL = 100
@@ -141,7 +142,7 @@ export const useAppStore = defineStore('app', () => {
                 }
             } catch { /* tray/dock not available */ }
         } catch (e) {
-            console.warn((e as Error).message)
+            logger.warn('AppStore.fetchGlobalStat', (e as Error).message)
         }
     }
 

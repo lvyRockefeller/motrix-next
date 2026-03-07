@@ -3,7 +3,6 @@ import { ref, computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { useTaskStore } from '@/stores/task'
-import { usePreferenceStore } from '@/stores/preference'
 import { ADD_TASK_TYPE } from '@shared/constants'
 import { isEngineReady } from '@/api/aria2'
 import { remove } from '@tauri-apps/plugin-fs'
@@ -19,7 +18,6 @@ import {
 const { t } = useI18n()
 const appStore = useAppStore()
 const taskStore = useTaskStore()
-const preferenceStore = usePreferenceStore()
 const message = useAppMessage()
 const dialog = useDialog()
 

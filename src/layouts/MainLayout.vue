@@ -22,7 +22,7 @@ import { openUrl } from '@tauri-apps/plugin-opener'
 import aria2Api, { isEngineReady } from '@/api/aria2'
 import { open as openDialog } from '@tauri-apps/plugin-dialog'
 import {
-  NModal, NCard, NButton, NSpace, NIcon, useDialog,
+  NModal, NButton, NSpace, NIcon, useDialog,
 } from 'naive-ui'
 import { WarningOutline } from '@vicons/ionicons5'
 

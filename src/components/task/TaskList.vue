@@ -3,18 +3,19 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useTaskStore } from '@/stores/task'
 import { useTheme } from '@/composables/useTheme'
 import TaskItem from './TaskItem.vue'
+import type { Aria2Task } from '@shared/types'
 import watermarkDark from '@/assets/brand-watermark-dark.png'
 import watermarkLight from '@/assets/brand-watermark-light.png'
 
 const emit = defineEmits<{
-  pause: [task: Record<string, unknown>]
-  resume: [task: Record<string, unknown>]
-  delete: [task: Record<string, unknown>]
-  'delete-record': [task: Record<string, unknown>]
-  'copy-link': [task: Record<string, unknown>]
-  'show-info': [task: Record<string, unknown>]
-  folder: [task: Record<string, unknown>]
-  'stop-seeding': [task: Record<string, unknown>]
+  pause: [task: Aria2Task]
+  resume: [task: Aria2Task]
+  delete: [task: Aria2Task]
+  'delete-record': [task: Aria2Task]
+  'copy-link': [task: Aria2Task]
+  'show-info': [task: Aria2Task]
+  folder: [task: Aria2Task]
+  'stop-seeding': [task: Aria2Task]
 }>()
 
 const taskStore = useTaskStore()
@@ -22,26 +23,26 @@ const { isDark } = useTheme()
 const watermarkSrc = computed(() => isDark.value ? watermarkLight : watermarkDark)
 
 const mounted = ref(false)
-const taskList = ref<Record<string, unknown>[]>([])
+const taskList = ref<Aria2Task[]>([])
 const selectedGidList = computed(() => taskStore.selectedGidList)
 
 onMounted(() => {
   nextTick(() => {
     mounted.value = true
-    taskList.value = taskStore.taskList as Record<string, unknown>[]
+    taskList.value = taskStore.taskList
   })
 })
 
 watch(() => taskStore.taskList, (v) => {
-  if (mounted.value) taskList.value = v as Record<string, unknown>[]
+  if (mounted.value) taskList.value = v
 })
 
 function isSelected(gid: string) {
   return selectedGidList.value.includes(gid)
 }
 
-function handleItemClick(task: Record<string, unknown>, event: MouseEvent) {
-  const gid = task.gid as string
+function handleItemClick(task: Aria2Task, event: MouseEvent) {
+  const gid = task.gid
   const list = [...selectedGidList.value]
   if (event.metaKey || event.ctrlKey) {
     const idx = list.indexOf(gid)
@@ -60,21 +61,21 @@ function handleItemClick(task: Record<string, unknown>, event: MouseEvent) {
     <TransitionGroup name="task-list" tag="div" class="task-list-inner">
       <div
         v-for="item in taskList"
-        :key="(item as Record<string, unknown>).gid as string"
-        :class="{ selected: isSelected((item as Record<string, unknown>).gid as string) }"
+        :key="item.gid"
+        :class="{ selected: isSelected(item.gid) }"
         class="task-list-item"
-        @click="handleItemClick(item as Record<string, unknown>, $event)"
+        @click="handleItemClick(item, $event)"
       >
         <TaskItem
-          :task="item as Record<string, unknown>"
-          @pause="emit('pause', item as Record<string, unknown>)"
-          @resume="emit('resume', item as Record<string, unknown>)"
-          @delete="emit('delete', item as Record<string, unknown>)"
-          @delete-record="emit('delete-record', item as Record<string, unknown>)"
-          @copy-link="emit('copy-link', item as Record<string, unknown>)"
-          @show-info="emit('show-info', item as Record<string, unknown>)"
-          @folder="emit('folder', item as Record<string, unknown>)"
-          @stop-seeding="emit('stop-seeding', item as Record<string, unknown>)"
+          :task="item"
+          @pause="emit('pause', item)"
+          @resume="emit('resume', item)"
+          @delete="emit('delete', item)"
+          @delete-record="emit('delete-record', item)"
+          @copy-link="emit('copy-link', item)"
+          @show-info="emit('show-info', item)"
+          @folder="emit('folder', item)"
+          @stop-seeding="emit('stop-seeding', item)"
         />
       </div>
     </TransitionGroup>

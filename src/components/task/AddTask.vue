@@ -12,6 +12,7 @@ import { buildOuts } from '@shared/utils/rename'
 import { open as openDialog } from '@tauri-apps/plugin-dialog'
 import { downloadDir } from '@tauri-apps/api/path'
 import { readFile } from '@tauri-apps/plugin-fs'
+import { logger } from '@shared/logger'
 import bencode from 'bencode'
 import {
   NModal, NCard, NTabs, NTabPane, NForm, NFormItem, NInput, NInputNumber,
@@ -127,7 +128,7 @@ async function loadTorrentFromPath(filePath: string) {
     torrentLoaded.value = true
     await parseTorrentData(uint8)
   } catch (e) {
-    console.error('loadTorrentFromPath error:', e)
+    logger.error('AddTask.loadTorrentFromPath', e)
   }
 }
 
@@ -171,7 +172,7 @@ async function parseTorrentData(uint8: Uint8Array) {
       selectedFileIndices.value = [1]
     }
   } catch (e) {
-    console.error('parseTorrentData error:', e)
+    logger.error('AddTask.parseTorrentData', e)
     torrentFiles.value = []
     selectedFileIndices.value = []
   }
@@ -293,7 +294,7 @@ async function handleSubmit() {
     }
   } catch (e: any) {
     const errMsg = e?.message || String(e)
-    console.error('[AddTask] submit error:', e)
+    logger.error('AddTask.submit', e)
     if (errMsg.includes('not initialized') || !isEngineReady()) {
       message.error(t('app.engine-not-ready'), { duration: 5000, closable: true })
     } else if (/duplicate|already/i.test(errMsg)) {
