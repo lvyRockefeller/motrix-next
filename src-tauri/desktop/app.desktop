@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Motrix Next
-Comment=A full-featured download manager
-Exec={{exec}}
-Icon={{icon}}
-Type=Application
-Categories={{categories}}
-MimeType=application/x-bittorrent;application/metalink+xml;x-scheme-handler/magnet;x-scheme-handler/thunder;
-StartupWMClass=motrix-next

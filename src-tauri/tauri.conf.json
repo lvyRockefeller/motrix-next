@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "motrix-next",
+  "productName": "MotrixNext",
   "identifier": "com.motrix.next",
   "build": {
     "beforeDevCommand": "pnpm dev",
@@ -63,22 +63,7 @@
         "description": "Metalink File",
         "role": "Viewer"
       }
-    ],
-    "macOS": {
-      "bundleName": "Motrix Next"
-    },
-    "windows": {
-      "nsis": {
-        "startMenuFolder": "Motrix Next",
-        "installerHooks": "nsis/hooks.nsh"
-      }
-    },
-    "linux": {
-      "deb": {
-        "desktopTemplate": "desktop/app.desktop"
-      },
-      "appimage": {}
-    }
+    ]
   },
   "plugins": {
     "updater": {
