@@ -135,29 +135,40 @@ function applyTranslations() {
     }
 }
 
-/** Switch to a new locale with fade transition and re-render. */
+/** Switch to a new locale with smooth cross-fade and re-render. */
 async function setLocale(locale) {
     if (!SUPPORTED_LOCALES.includes(locale)) return;
     currentLocale = locale;
     localStorage.setItem(STORAGE_KEY, locale);
     location.hash = `lang=${locale}`;
 
-    // Fade out
     const main = document.querySelector('main');
     const footer = document.querySelector('footer');
-    if (main) main.style.opacity = '0';
-    if (footer) footer.style.opacity = '0';
 
-    messages = await fetchLocale(locale);
+    // Phase 1: Fade out — add class to trigger CSS dim+blur animation
+    if (main) main.classList.add('i18n-fade-out');
+    if (footer) footer.classList.add('i18n-fade-out');
+
+    // Wait for BOTH: fade-out transition (150ms) AND locale fetch
+    const [msgs] = await Promise.all([
+        fetchLocale(locale),
+        new Promise(r => setTimeout(r, 150)),
+    ]);
+
+    // Phase 2: Swap content while dimmed
+    messages = msgs;
     applyTranslations();
-    // Fire registered callbacks for dynamic content
     for (const cb of localeChangeCallbacks) cb();
 
-    // Fade in after a brief delay to let DOM update
-    requestAnimationFrame(() => {
-        if (main) main.style.opacity = '1';
-        if (footer) footer.style.opacity = '1';
-    });
+    // Phase 3: Fade in — remove out class, add in class
+    if (main) { main.classList.remove('i18n-fade-out'); main.classList.add('i18n-fade-in'); }
+    if (footer) { footer.classList.remove('i18n-fade-out'); footer.classList.add('i18n-fade-in'); }
+
+    // Clean up animation class after it completes
+    setTimeout(() => {
+        if (main) main.classList.remove('i18n-fade-in');
+        if (footer) footer.classList.remove('i18n-fade-in');
+    }, 200);
 }
 
 /** Register a callback to re-render dynamic content on locale change. */
