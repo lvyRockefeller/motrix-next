@@ -2273,7 +2273,7 @@ dependencies = [
 
 [[package]]
 name = "motrix-next"
-version = "2.0.1"
+version = "2.1.0-beta.1"
 dependencies = [
  "log",
  "serde",
