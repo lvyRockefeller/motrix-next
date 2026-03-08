@@ -97,11 +97,23 @@
 
 
     <section id="showcase">
-      <div class="showcase-frame reveal">
-        <img src="assets/screenshot-downloading.png" alt="Motrix Next downloading interface" width="1440" height="900"
-          loading="lazy">
+      <div class="showcase-pair reveal">
+        <figure class="showcase-frame" onclick="openLightbox(this.querySelector('img').src)">
+          <img src="assets/screenshot-light.png" alt="Motrix Next — Light Mode" width="1440" height="900"
+            loading="lazy">
+          <figcaption>Light Mode</figcaption>
+        </figure>
+        <figure class="showcase-frame" onclick="openLightbox(this.querySelector('img').src)">
+          <img src="assets/screenshot-dark.png" alt="Motrix Next — Dark Mode" width="1440" height="900" loading="lazy">
+          <figcaption>Dark Mode</figcaption>
+        </figure>
       </div>
     </section>
+
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+      <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">&times;</button>
+      <img id="lightbox-img" src="" alt="">
+    </div>
 
     <section id="story" class="section">
       <h2 class="reveal">Why Motrix Next?</h2>
@@ -528,6 +540,19 @@
         primaryText.textContent = 'Download latest release';
       }
     })();
+
+    function openLightbox(src) {
+      const lb = document.getElementById('lightbox');
+      document.getElementById('lightbox-img').src = src;
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+      const lb = document.getElementById('lightbox');
+      lb.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
   </script>
 
 </body>
