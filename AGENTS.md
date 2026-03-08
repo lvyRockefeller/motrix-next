@@ -175,7 +175,7 @@ The user's channel preference is stored as `updateChannel` in the preference sto
 
 ### How to Publish a Release
 
-1. **Bump the version (auto-commits and creates a git tag):**
+1. **Bump the version (can be done anytime):**
 
    ```bash
    # Stable
@@ -184,13 +184,15 @@ The user's channel preference is stored as `updateChannel` in the preference sto
    ./scripts/bump-version.sh 1.4.0-beta.1
    ```
 
-   This atomically updates `Cargo.toml` + `package.json`, commits, and creates an annotated tag `v{VERSION}`.
+   This only updates `Cargo.toml` + `package.json`. You can continue making changes after this.
 
-2. **Push the commit and tag:**
+2. **When all changes are final, release:**
 
    ```bash
-   git push && git push --tags
+   ./scripts/release.sh
    ```
+
+   This formats code, commits all changes, creates an annotated tag `v{VERSION}`, and pushes everything to origin.
 
 3. **Create a GitHub Release:**
 

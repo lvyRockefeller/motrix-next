@@ -5,9 +5,8 @@
 # Usage:
 #   ./scripts/bump-version.sh 1.4.0
 #
-# This ensures the two version sources stay in sync. Cargo.toml is the single
-# source of truth for the Tauri build, but package.json must match for
-# consistency with npm tooling and CI/CD (pnpm/action-setup reads it).
+# This ONLY bumps version numbers. Use ./scripts/release.sh to commit, tag,
+# and push when you are ready to publish.
 # ==============================================================================
 set -euo pipefail
 
@@ -41,15 +40,8 @@ npm pkg set "version=$VERSION"
 cd "$PROJECT_ROOT/src-tauri"
 cargo generate-lockfile --quiet 2>/dev/null || true
 
-# Stage, commit, and tag
-cd "$PROJECT_ROOT"
-git add -A
-git commit -m "release: v$VERSION"
-git tag -a "v$VERSION" -m "v$VERSION"
-
 echo "✓ Bumped version to $VERSION"
 echo "  - $CARGO_TOML"
 echo "  - $PACKAGE_JSON"
 echo ""
-echo "Next: git push && git push --tags"
-echo "Then create a GitHub Release selecting tag v$VERSION"
+echo "When ready to release, run: ./scripts/release.sh"
