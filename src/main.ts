@@ -63,10 +63,11 @@ async function autoCheckForUpdate() {
   if (Date.now() - lastCheck < intervalMs) return
 
   try {
-    const { check } = await import('@tauri-apps/plugin-updater')
-    const update = await check()
+    const { invoke } = await import('@tauri-apps/api/core')
+    const channel = config.updateChannel || 'stable'
+    const update = await invoke('check_for_update', { channel })
     preferenceStore.updateAndSave({ lastCheckUpdateTime: Date.now() })
-    if (update?.available) {
+    if (update) {
       appStore.pendingUpdate = update
     }
   } catch (e) {

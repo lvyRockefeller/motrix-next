@@ -27,6 +27,8 @@ import {
   NText,
   NCollapseTransition,
   NTag,
+  NRadioGroup,
+  NRadioButton,
   useDialog,
 } from 'naive-ui'
 import { FolderOpenOutline, CloudDownloadOutline } from '@vicons/ionicons5'
@@ -67,6 +69,7 @@ function buildForm() {
     autoCheckUpdate: config.autoCheckUpdate !== false,
     autoCheckUpdateInterval: Number(config.autoCheckUpdateInterval) || 24,
     lastCheckUpdateTime: config.lastCheckUpdateTime || 0,
+    updateChannel: config.updateChannel || 'stable',
     dir: config.dir || defaultDownloadDir.value,
     locale: config.locale || 'en-US',
     theme: config.theme || 'dark',
@@ -300,12 +303,20 @@ onMounted(async () => {
           <NSelect v-model:value="form.autoCheckUpdateInterval" :options="checkIntervalOptions" style="width: 180px" />
         </NFormItem>
       </NCollapseTransition>
+      <NCollapseTransition :show="form.autoCheckUpdate">
+        <NFormItem :label="t('preferences.update-channel')">
+          <NRadioGroup v-model:value="form.updateChannel" size="small">
+            <NRadioButton value="stable">{{ t('preferences.update-channel-stable') }}</NRadioButton>
+            <NRadioButton value="beta">{{ t('preferences.update-channel-beta') }}</NRadioButton>
+          </NRadioGroup>
+        </NFormItem>
+      </NCollapseTransition>
       <NFormItem :label="t('preferences.last-check-update-time')">
         <div style="display: flex; align-items: center; gap: 16px">
           <NButton size="small" @click="handleCheckUpdate">
-            <template #icon
-              ><NIcon :size="14"><CloudDownloadOutline /></NIcon
-            ></template>
+            <template #icon>
+              <NIcon :size="14"><CloudDownloadOutline /></NIcon>
+            </template>
             {{ t('app.check-updates-now') }}
           </NButton>
           <NText v-if="form.lastCheckUpdateTime" depth="3" style="font-size: 13px">
@@ -404,9 +415,9 @@ onMounted(async () => {
       <NFormItem :show-label="false">
         <NSpace vertical>
           <NCheckbox v-model:checked="form.btSaveMetadata">{{ t('preferences.bt-save-metadata') }}</NCheckbox>
-          <NCheckbox v-model:checked="form.btAutoDownloadContent">{{
-            t('preferences.bt-auto-download-content')
-          }}</NCheckbox>
+          <NCheckbox v-model:checked="form.btAutoDownloadContent">
+            {{ t('preferences.bt-auto-download-content') }}
+          </NCheckbox>
           <NCheckbox v-model:checked="form.btForceEncryption">{{ t('preferences.bt-force-encryption') }}</NCheckbox>
         </NSpace>
       </NFormItem>
@@ -432,21 +443,21 @@ onMounted(async () => {
       <NFormItem :show-label="false">
         <NSpace vertical>
           <NCheckbox v-model:checked="form.continue">{{ t('preferences.continue') }}</NCheckbox>
-          <NCheckbox v-model:checked="form.newTaskShowDownloading">{{
-            t('preferences.new-task-show-downloading')
-          }}</NCheckbox>
+          <NCheckbox v-model:checked="form.newTaskShowDownloading">
+            {{ t('preferences.new-task-show-downloading') }}
+          </NCheckbox>
           <NCheckbox v-model:checked="form.taskNotification">{{ t('preferences.task-completed-notify') }}</NCheckbox>
-          <NCheckbox v-model:checked="form.noConfirmBeforeDeleteTask">{{
-            t('preferences.no-confirm-before-delete-task')
-          }}</NCheckbox>
+          <NCheckbox v-model:checked="form.noConfirmBeforeDeleteTask">
+            {{ t('preferences.no-confirm-before-delete-task') }}
+          </NCheckbox>
         </NSpace>
       </NFormItem>
     </NForm>
     <div class="form-actions">
       <NSpace>
-        <NButton :class="{ 'save-btn-dirty': isDirty }" type="primary" @click="handleSave">{{
-          t('preferences.save')
-        }}</NButton>
+        <NButton :class="{ 'save-btn-dirty': isDirty }" type="primary" @click="handleSave">
+          {{ t('preferences.save') }}
+        </NButton>
         <NButton :class="{ 'discard-btn-dirty': isDirty }" @click="handleReset">{{ t('preferences.discard') }}</NButton>
       </NSpace>
     </div>

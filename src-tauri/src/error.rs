@@ -15,6 +15,8 @@ pub enum AppError {
     /// Requested resource not found.
     #[allow(dead_code)]
     NotFound(String),
+    /// Auto-updater check or install failure.
+    Updater(String),
 }
 
 impl std::fmt::Display for AppError {
@@ -24,6 +26,7 @@ impl std::fmt::Display for AppError {
             AppError::Engine(msg) => write!(f, "Engine error: {}", msg),
             AppError::Io(msg) => write!(f, "IO error: {}", msg),
             AppError::NotFound(msg) => write!(f, "Not found: {}", msg),
+            AppError::Updater(msg) => write!(f, "Updater error: {}", msg),
         }
     }
 }
