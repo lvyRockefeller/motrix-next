@@ -231,7 +231,7 @@ defineExpose({ open })
               <NText depth="3" class="update-error-msg">{{ errorMsg }}</NText>
             </div>
             <NSpace justify="center" :size="8">
-              <NButton size="small" @click="open">{{ t('app.retry') }}</NButton>
+              <NButton size="small" @click="() => open()">{{ t('app.retry') }}</NButton>
               <NButton size="small" quaternary @click="close">{{ t('app.close') }}</NButton>
             </NSpace>
           </div>

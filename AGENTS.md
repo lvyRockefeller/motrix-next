@@ -218,20 +218,29 @@ Two parallel jobs:
 
 ## H. Verification Commands
 
-Run all of these before committing changes:
+Run these before committing changes:
 
 ```bash
 # Frontend
 pnpm test                  # Vitest — 336+ unit tests
 npx vue-tsc --noEmit       # TypeScript type checking
-npx vite build             # Production build validation
 
 # Backend
 cargo check                # Fast compilation check
 cargo test                 # Rust unit tests
 
-# Version
-./scripts/bump-version.sh 1.3.1  # Test version sync (idempotent)
+# Version (when bumping)
+./scripts/bump-version.sh <version>
 ```
 
-All must pass with zero errors before any PR or release.
+> **Note:** `npx vite build` is slow and should only be run when validating production output or debugging locale/bundling issues — not on every change.
+
+All fast checks must pass with zero errors before any PR or release.
+
+---
+
+## I. Superpowers Skill Framework
+
+This project uses the **Superpowers** skill framework (`~/.claude/skills/using-superpowers/SKILL.md`). It enforces a discipline where AI agents **must invoke relevant skills before any action** — planning, debugging, implementing, or reviewing.
+
+**Read the skill file before starting any work.** It contains the full workflow, skill priority rules, and the complete list of available skills.

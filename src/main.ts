@@ -65,10 +65,13 @@ async function autoCheckForUpdate() {
   try {
     const { invoke } = await import('@tauri-apps/api/core')
     const channel = config.updateChannel || 'stable'
-    const update = await invoke('check_for_update', { channel })
+    const update = await invoke<{ version: string; body: string | null; date: string | null } | null>(
+      'check_for_update',
+      { channel },
+    )
     preferenceStore.updateAndSave({ lastCheckUpdateTime: Date.now() })
     if (update) {
-      appStore.pendingUpdate = update
+      appStore.pendingUpdate = { version: update.version, body: update.body, date: update.date }
     }
   } catch (e) {
     logger.warn('Updater', 'auto check failed: ' + (e as Error).message)
