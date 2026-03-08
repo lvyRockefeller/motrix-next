@@ -85,8 +85,8 @@ Download the latest release from [GitHub Releases](https://github.com/AnInsomnia
 
 ### macOS Users
 
-> This app is not code-signed — built by a PhD student, not a corporation.
-> (See my [GitHub profile](https://github.com/AnInsomniacy) for what I actually research.)
+> This app is not code-signed — Apple charges $99/year and I'm a PhD student surviving on instant noodles 🍜
+> ([What I actually research](https://github.com/AnInsomniacy) · [Buy me a coffee](https://github.com/AnInsomniacy) so I can maybe afford that certificate one day ☕)
 >
 > If macOS says the app is **"damaged and can't be opened"**, open Terminal and run:
 >
