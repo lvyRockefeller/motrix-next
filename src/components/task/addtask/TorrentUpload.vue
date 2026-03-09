@@ -103,6 +103,7 @@ defineEmits<{
   font-size: 14px;
   flex: 1;
   min-width: 0;
+  max-width: 400px;
 }
 .torrent-filename span {
   overflow: hidden;

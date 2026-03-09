@@ -400,8 +400,16 @@ function kindTagType(kind: string): 'info' | 'success' | 'warning' {
       :title="t('task.new-task')"
       closable
       class="add-task-card"
-      :style="{ maxWidth: '680px', minWidth: '380px', width: '70vw', marginTop: '8vh' }"
-      :content-style="{ maxHeight: '60vh', overflowY: 'auto', overflowX: 'hidden', scrollbarGutter: 'stable' }"
+      :style="{
+        maxWidth: '680px',
+        minWidth: '380px',
+        width: '70vw',
+        marginTop: '5vh',
+        height: '85vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }"
+      :content-style="{ flex: '1', minHeight: '0', overflowY: 'auto', overflowX: 'hidden' }"
       :segmented="{ footer: true }"
       @close="handleClose"
     >
@@ -420,54 +428,63 @@ function kindTagType(kind: string): 'info' | 'success' | 'warning' {
             </div>
           </NTabPane>
           <NTabPane :name="ADD_TASK_TYPE.TORRENT" :tab="t('task.torrent-task') || 'Torrent'">
-            <!-- Batch list when multiple file items -->
-            <div v-if="fileItems.length > 1" class="batch-list">
-              <div
-                v-for="(item, idx) in fileItems"
-                :key="item.id"
-                class="batch-item"
-                :class="{ 'batch-item-selected': idx === selectedBatchIndex }"
-                @click="selectedBatchIndex = idx"
-              >
-                <div class="batch-item-main">
-                  <NEllipsis :style="{ maxWidth: '420px', flex: 1 }">{{ item.displayName }}</NEllipsis>
-                  <NSpace :size="4" align="center" :wrap="false">
-                    <NTag :type="kindTagType(item.kind)" size="small" :bordered="false">
-                      {{ item.kind === 'metalink' ? 'Metalink' : 'Torrent' }}
-                    </NTag>
-                    <NTag v-if="item.status === 'failed'" type="error" size="small" :bordered="false">✕</NTag>
-                    <NButton quaternary size="tiny" @click.stop="removeBatchItem(item)">✕</NButton>
-                  </NSpace>
-                </div>
-                <div v-if="item.error" class="batch-item-error">{{ item.error }}</div>
+            <div class="tab-pane-content">
+              <!-- Batch list when multiple file items -->
+              <div v-if="fileItems.length > 1" class="batch-list">
+                <TransitionGroup name="batch-item-list" tag="div">
+                  <div
+                    v-for="(item, idx) in fileItems"
+                    :key="item.id"
+                    class="batch-item"
+                    :class="{ 'batch-item-selected': idx === selectedBatchIndex }"
+                    @click="selectedBatchIndex = idx"
+                  >
+                    <div class="batch-item-main">
+                      <NEllipsis :style="{ maxWidth: '400px', flex: 1 }">{{ item.displayName }}</NEllipsis>
+                      <NSpace :size="4" align="center" :wrap="false">
+                        <NTag :type="kindTagType(item.kind)" size="small" :bordered="false">
+                          {{ item.kind === 'metalink' ? 'Metalink' : 'Torrent' }}
+                        </NTag>
+                        <NTag v-if="item.status === 'failed'" type="error" size="small" :bordered="false">✕</NTag>
+                        <NButton quaternary size="tiny" @click.stop="removeBatchItem(item)">✕</NButton>
+                      </NSpace>
+                    </div>
+                    <div v-if="item.error" class="batch-item-error">{{ item.error }}</div>
+                  </div>
+                </TransitionGroup>
               </div>
-            </div>
 
-            <!-- Single torrent detail / upload area -->
-            <TorrentUpload
-              :loaded="!!selectedItem && selectedItem.payload !== selectedItem.source"
-              :name="selectedItem?.displayName || ''"
-              @choose="chooseTorrentFile"
-              @clear="clearTorrent"
-            >
-              <template #file-list>
-                <div
-                  v-if="selectedItem?.torrentMeta && selectedItem.torrentMeta.files.length > 0"
-                  class="torrent-file-list"
+              <!-- Single torrent detail / upload area -->
+              <Transition name="batch-fade" mode="out-in">
+                <TorrentUpload
+                  :key="selectedItem?.id || 'empty'"
+                  :loaded="!!selectedItem && selectedItem.payload !== selectedItem.source"
+                  :name="selectedItem?.displayName || ''"
+                  @choose="chooseTorrentFile"
+                  @clear="clearTorrent"
                 >
-                  <NDataTable
-                    v-model:checked-row-keys="checkedRowKeys"
-                    :columns="fileColumns"
-                    :data="selectedItem.torrentMeta.files"
-                    :row-key="(row: any) => row.idx as number"
-                    size="small"
-                    :max-height="200"
-                    :scroll-x="400"
-                  />
-                </div>
-              </template>
-              <template #placeholder>{{ t('task.select-torrent') || 'Drag torrent here or click to select' }}</template>
-            </TorrentUpload>
+                  <template #file-list>
+                    <div
+                      v-if="selectedItem?.torrentMeta && selectedItem.torrentMeta.files.length > 0"
+                      class="torrent-file-list"
+                    >
+                      <NDataTable
+                        v-model:checked-row-keys="checkedRowKeys"
+                        :columns="fileColumns"
+                        :data="selectedItem.torrentMeta.files"
+                        :row-key="(row: any) => row.idx as number"
+                        size="small"
+                        :max-height="200"
+                        :scroll-x="400"
+                      />
+                    </div>
+                  </template>
+                  <template #placeholder>{{
+                    t('task.select-torrent') || 'Drag torrent here or click to select'
+                  }}</template>
+                </TorrentUpload>
+              </Transition>
+            </div>
           </NTabPane>
         </NTabs>
         <div class="tab-shared-form">
@@ -519,6 +536,11 @@ function kindTagType(kind: string): 'info' | 'success' | 'warning' {
   margin-top: 4px;
 }
 
+/* Fixed-height tab panes prevent jitter when switching tabs */
+.tab-pane-content {
+  min-height: 160px;
+}
+
 /* Tab slide animation for shared bottom form */
 .tab-slide-left-enter-active,
 .tab-slide-left-leave-active,
@@ -541,6 +563,37 @@ function kindTagType(kind: string): 'info' | 'success' | 'warning' {
 .tab-slide-right-leave-to {
   opacity: 0;
   transform: translateX(30px);
+}
+
+/* M3 crossfade for batch item switching */
+.batch-fade-enter-active {
+  transition: opacity 0.22s cubic-bezier(0.2, 0, 0, 1);
+}
+.batch-fade-leave-active {
+  transition: opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15);
+}
+.batch-fade-enter-from,
+.batch-fade-leave-to {
+  opacity: 0;
+}
+
+/* TransitionGroup for batch item add/remove */
+.batch-item-list-enter-active {
+  transition: opacity 0.22s cubic-bezier(0.2, 0, 0, 1);
+}
+.batch-item-list-leave-active {
+  transition: opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15);
+}
+.batch-item-list-enter-from,
+.batch-item-list-leave-to {
+  opacity: 0;
+}
+.batch-item-list-move {
+  transition: transform 0.22s cubic-bezier(0.2, 0, 0, 1);
+}
+.batch-item-list-leave-active {
+  position: absolute;
+  width: 100%;
 }
 
 /* Batch item list */
