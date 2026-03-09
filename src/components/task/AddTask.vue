@@ -177,11 +177,19 @@ watch(
   },
 )
 
-// Watch for new batch items added while dialog is already open (drag-drop)
+// Watch for new batch items added while dialog is already open (drag-drop, deep link)
 watch(
   () => batch.value.length,
   async (newLen, oldLen) => {
     if (!props.show || newLen <= oldLen) return
+    // Flush any newly added URI items into the editable textarea (append, don't overwrite)
+    const uriItems = batch.value.filter((i) => i.kind === 'uri')
+    if (uriItems.length > 0) {
+      const existing = form.value.uris.trim()
+      const incoming = uriItems.map((i) => i.payload).join('\n')
+      form.value.uris = existing ? `${existing}\n${incoming}` : incoming
+      appStore.pendingBatch = batch.value.filter((i) => i.kind !== 'uri')
+    }
     await resolveUnresolvedItems()
     if (fileItems.value.length > 0) {
       activeTab.value = ADD_TASK_TYPE.TORRENT

@@ -187,24 +187,33 @@ export const useAppStore = defineStore('app', () => {
     if (!urls || urls.length === 0) return
 
     const items: BatchItem[] = []
+    const FILE_EXTS = ['.torrent', '.metalink', '.meta4']
 
     for (const url of urls) {
       const lower = url.toLowerCase()
-      if (
-        lower.endsWith('.torrent') ||
-        (lower.startsWith('file://') && lower.includes('.torrent')) ||
-        lower.endsWith('.metalink') ||
-        lower.endsWith('.meta4') ||
-        (lower.startsWith('file://') && (lower.includes('.metalink') || lower.includes('.meta4')))
-      ) {
-        const filePath = url.startsWith('file://') ? decodeURIComponent(url.replace(/^file:\/\//, '')) : url
+
+      // Determine if this is a local file reference (file:// protocol or raw path)
+      const isFileUri = lower.startsWith('file://')
+      const isRemoteUri =
+        lower.startsWith('http://') ||
+        lower.startsWith('https://') ||
+        lower.startsWith('ftp://') ||
+        lower.startsWith('magnet:') ||
+        lower.startsWith('thunder://')
+      const isLocalPath = !isRemoteUri && !isFileUri
+
+      // Only treat as a file-based batch item if it's a LOCAL path or file:// URI
+      const hasFileExt = FILE_EXTS.some((ext) => lower.endsWith(ext))
+      if ((isLocalPath || isFileUri) && hasFileExt) {
+        const filePath = isFileUri ? decodeURIComponent(url.replace(/^file:\/\//, '')) : url
         const kind = detectKind(filePath)
         items.push(createBatchItem(kind, filePath))
       } else if (lower.startsWith('magnet:')) {
         items.push(createBatchItem('uri', url))
       } else if (lower.startsWith('thunder://')) {
         items.push(createBatchItem('uri', decodeThunderLink(url)))
-      } else if (lower.startsWith('http://') || lower.startsWith('https://') || lower.startsWith('ftp://')) {
+      } else if (isRemoteUri || hasFileExt) {
+        // Remote .torrent/.metalink URLs — let aria2 handle the download
         items.push(createBatchItem('uri', url))
       }
     }
