@@ -197,6 +197,18 @@ preferenceStore.loadPreference().then(async () => {
     taskStore.resumeAllTask().catch((e) => logger.debug('main.resumeAll', e))
   }
 
+  // Start UPnP port mapping if enabled (mirrors legacy Motrix initUPnPManager)
+  if (config.enableUpnp) {
+    import('@tauri-apps/api/core')
+      .then(({ invoke }) =>
+        invoke('start_upnp_mapping', {
+          btPort: Number(config.listenPort) || 21301,
+          dhtPort: Number(config.dhtListenPort) || 26701,
+        }),
+      )
+      .catch((e) => logger.warn('UPnP', 'startup mapping failed: ' + e))
+  }
+
   // Sync autostart state with user preference
   try {
     const { isEnabled, enable, disable } = await import('@tauri-apps/plugin-autostart')

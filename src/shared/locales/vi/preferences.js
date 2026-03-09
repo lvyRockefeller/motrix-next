@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'Hàng tuần',
   'interval-monthly': 'Hàng tháng',
   'interval-semi-annual': 'Nửa năm',
-  'interval-yearly': 'Hàng năm'
+  'interval-yearly': 'Hàng năm',
+  'upnp-mapping-started': 'Đã bật ánh xạ cổng UPnP',
+  'upnp-mapping-failed': 'Ánh xạ cổng UPnP thất bại',
 }

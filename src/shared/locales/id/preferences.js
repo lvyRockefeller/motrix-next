@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'Mingguan',
   'interval-monthly': 'Bulanan',
   'interval-semi-annual': 'Setengah tahunan',
-  'interval-yearly': 'Tahunan'
+  'interval-yearly': 'Tahunan',
+  'upnp-mapping-started': 'Pemetaan port UPnP diaktifkan',
+  'upnp-mapping-failed': 'Pemetaan port UPnP gagal',
 }

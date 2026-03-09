@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'Haftalık',
   'interval-monthly': 'Aylık',
   'interval-semi-annual': 'Altı aylık',
-  'interval-yearly': 'Yıllık'
+  'interval-yearly': 'Yıllık',
+  'upnp-mapping-started': 'UPnP port eşlemesi etkinleştirildi',
+  'upnp-mapping-failed': 'UPnP port eşlemesi başarısız oldu',
 }

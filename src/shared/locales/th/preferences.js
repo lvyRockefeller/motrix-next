@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'รายสัปดาห์',
   'interval-monthly': 'รายเดือน',
   'interval-semi-annual': 'ทุกครึ่งปี',
-  'interval-yearly': 'รายปี'
+  'interval-yearly': 'รายปี',
+  'upnp-mapping-started': 'เปิดใช้งานการแมปพอร์ต UPnP แล้ว',
+  'upnp-mapping-failed': 'การแมปพอร์ต UPnP ล้มเหลว',
 }

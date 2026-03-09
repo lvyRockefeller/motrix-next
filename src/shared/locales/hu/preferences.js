@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'Hetente',
   'interval-monthly': 'Havonta',
   'interval-semi-annual': 'Félévente',
-  'interval-yearly': 'Évente'
+  'interval-yearly': 'Évente',
+  'upnp-mapping-started': 'UPnP porttérképezés engedélyezve',
+  'upnp-mapping-failed': 'UPnP porttérképezés sikertelen',
 }

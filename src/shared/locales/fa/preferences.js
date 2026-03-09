@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'هفتگی',
   'interval-monthly': 'ماهانه',
   'interval-semi-annual': 'شش‌ماهه',
-  'interval-yearly': 'سالانه'
+  'interval-yearly': 'سالانه',
+  'upnp-mapping-started': 'نگاشت پورت UPnP فعال شد',
+  'upnp-mapping-failed': 'نگاشت پورت UPnP ناموفق بود',
 }

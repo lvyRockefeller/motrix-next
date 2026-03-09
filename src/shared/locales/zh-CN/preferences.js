@@ -124,5 +124,7 @@ export default {
   'interval-weekly': '每周',
   'interval-monthly': '每月',
   'interval-semi-annual': '每半年',
-  'interval-yearly': '每年'
+  'interval-yearly': '每年',
+  'upnp-mapping-started': 'UPnP 端口映射已启用',
+  'upnp-mapping-failed': 'UPnP 端口映射失败',
 }

@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'Щотижня',
   'interval-monthly': 'Щомісяця',
   'interval-semi-annual': 'Раз на півроку',
-  'interval-yearly': 'Щороку'
+  'interval-yearly': 'Щороку',
+  'upnp-mapping-started': 'Прокидання портів UPnP увімкнено',
+  'upnp-mapping-failed': 'Помилка прокидання портів UPnP',
 }

@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'Εβδομαδιαία',
   'interval-monthly': 'Μηνιαία',
   'interval-semi-annual': 'Εξαμηνιαία',
-  'interval-yearly': 'Ετήσια'
+  'interval-yearly': 'Ετήσια',
+  'upnp-mapping-started': 'Η αντιστοίχιση θυρών UPnP ενεργοποιήθηκε',
+  'upnp-mapping-failed': 'Η αντιστοίχιση θυρών UPnP απέτυχε',
 }

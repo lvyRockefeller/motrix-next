@@ -17,6 +17,8 @@ pub enum AppError {
     NotFound(String),
     /// Auto-updater check or install failure.
     Updater(String),
+    /// UPnP port mapping error (discovery, map, unmap).
+    Upnp(String),
 }
 
 impl std::fmt::Display for AppError {
@@ -27,6 +29,7 @@ impl std::fmt::Display for AppError {
             AppError::Io(msg) => write!(f, "IO error: {}", msg),
             AppError::NotFound(msg) => write!(f, "Not found: {}", msg),
             AppError::Updater(msg) => write!(f, "Updater error: {}", msg),
+            AppError::Upnp(msg) => write!(f, "UPnP error: {}", msg),
         }
     }
 }

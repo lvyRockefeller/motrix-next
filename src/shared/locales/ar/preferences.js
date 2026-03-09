@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'أسبوعيًا',
   'interval-monthly': 'شهريًا',
   'interval-semi-annual': 'نصف سنوي',
-  'interval-yearly': 'سنويًا'
+  'interval-yearly': 'سنويًا',
+  'upnp-mapping-started': 'تم تفعيل تعيين منافذ UPnP',
+  'upnp-mapping-failed': 'فشل تعيين منافذ UPnP',
 }

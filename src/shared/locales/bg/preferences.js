@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'Ежеседмично',
   'interval-monthly': 'Ежемесечно',
   'interval-semi-annual': 'На шест месеца',
-  'interval-yearly': 'Ежегодно'
+  'interval-yearly': 'Ежегодно',
+  'upnp-mapping-started': 'UPnP картографирането на портове е активирано',
+  'upnp-mapping-failed': 'UPnP картографирането на портове е неуспешно',
 }

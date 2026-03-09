@@ -124,5 +124,7 @@ export default {
   'interval-weekly': '매주',
   'interval-monthly': '매월',
   'interval-semi-annual': '6개월마다',
-  'interval-yearly': '매년'
+  'interval-yearly': '매년',
+  'upnp-mapping-started': 'UPnP 포트 매핑이 활성화되었습니다',
+  'upnp-mapping-failed': 'UPnP 포트 매핑에 실패했습니다',
 }

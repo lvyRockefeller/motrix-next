@@ -124,5 +124,7 @@ export default {
   'interval-weekly': '毎週',
   'interval-monthly': '毎月',
   'interval-semi-annual': '半年ごと',
-  'interval-yearly': '毎年'
+  'interval-yearly': '毎年',
+  'upnp-mapping-started': 'UPnPポートマッピングが有効になりました',
+  'upnp-mapping-failed': 'UPnPポートマッピングに失敗しました',
 }

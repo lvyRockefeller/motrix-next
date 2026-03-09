@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'Еженедельно',
   'interval-monthly': 'Ежемесячно',
   'interval-semi-annual': 'Раз в полгода',
-  'interval-yearly': 'Ежегодно'
+  'interval-yearly': 'Ежегодно',
+  'upnp-mapping-started': 'Проброс портов UPnP включён',
+  'upnp-mapping-failed': 'Ошибка проброса портов UPnP',
 }

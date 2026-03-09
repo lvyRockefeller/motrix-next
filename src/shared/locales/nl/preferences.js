@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'Wekelijks',
   'interval-monthly': 'Maandelijks',
   'interval-semi-annual': 'Halfjaarlijks',
-  'interval-yearly': 'Jaarlijks'
+  'interval-yearly': 'Jaarlijks',
+  'upnp-mapping-started': 'UPnP-poorttoewijzing ingeschakeld',
+  'upnp-mapping-failed': 'UPnP-poorttoewijzing mislukt',
 }

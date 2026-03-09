@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'Săptămânal',
   'interval-monthly': 'Lunar',
   'interval-semi-annual': 'Semestrial',
-  'interval-yearly': 'Anual'
+  'interval-yearly': 'Anual',
+  'upnp-mapping-started': 'Maparea porturilor UPnP activată',
+  'upnp-mapping-failed': 'Maparea porturilor UPnP a eșuat',
 }

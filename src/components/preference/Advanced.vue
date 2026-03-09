@@ -162,7 +162,6 @@ const { form, isDirty, handleSave, handleReset, resetSnapshot } = usePreferenceF
       'rpc-secret': f.rpcSecret,
       'enable-dht': 'true',
       'enable-peer-exchange': 'true',
-      'enable-upnp': String(f.enableUpnp),
       'listen-port': String(f.listenPort),
       'dht-listen-port': String(f.dhtListenPort),
       'user-agent': f.userAgent || '',
@@ -275,6 +274,26 @@ function onBtPortDice() {
 
 function onDhtPortDice() {
   form.value.dhtListenPort = generateRandomInt(25000, 29999)
+}
+
+// ─── UPnP Toggle & Port Re-mapping ───────────────────────────────────
+
+/** Immediately start or stop UPnP port mapping when the toggle is flipped. */
+async function handleUpnpToggle(enabled: boolean) {
+  try {
+    const { invoke } = await import('@tauri-apps/api/core')
+    if (enabled) {
+      await invoke('start_upnp_mapping', {
+        btPort: form.value.listenPort,
+        dhtPort: form.value.dhtListenPort,
+      })
+    } else {
+      await invoke('stop_upnp_mapping')
+    }
+  } catch (e) {
+    logger.warn('UPnP', `toggle failed: ${e}`)
+    message.warning(t('preferences.upnp-mapping-failed'))
+  }
 }
 
 function changeUA(type: string) {
@@ -457,7 +476,7 @@ onMounted(() => {
 
       <NDivider title-placement="left">{{ t('preferences.port') }}</NDivider>
       <NFormItem label="UPnP/NAT-PMP">
-        <NSwitch v-model:value="form.enableUpnp" />
+        <NSwitch v-model:value="form.enableUpnp" @update:value="handleUpnpToggle" />
       </NFormItem>
       <NFormItem :label="t('preferences.bt-port')">
         <NInputGroup>

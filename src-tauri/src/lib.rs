@@ -3,12 +3,14 @@ mod engine;
 mod error;
 mod menu;
 mod tray;
+mod upnp;
 
 use crate::commands::updater::UpdateCancelState;
 use engine::EngineState;
 use tauri::{Emitter, Manager};
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_store::StoreExt;
+use upnp::UpnpState;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -45,6 +47,7 @@ pub fn run() {
 
     builder
         .manage(EngineState::new())
+        .manage(UpnpState::new())
         .manage(std::sync::Arc::new(UpdateCancelState::new()))
         .invoke_handler(tauri::generate_handler![
             commands::get_app_config,
@@ -64,6 +67,9 @@ pub fn run() {
             commands::check_for_update,
             commands::install_update,
             commands::cancel_update,
+            commands::start_upnp_mapping,
+            commands::stop_upnp_mapping,
+            commands::get_upnp_status,
         ])
         .setup(|app| {
             let handle = app.handle();
@@ -108,6 +114,10 @@ pub fn run() {
         .run(|app, event| match event {
             tauri::RunEvent::Exit => {
                 let _ = engine::stop_engine(app);
+                // Clean up UPnP port mappings on exit.
+                if let Some(state) = app.try_state::<UpnpState>() {
+                    tauri::async_runtime::block_on(upnp::stop_mapping(state.inner()));
+                }
             }
             // Rust-level defense for minimize-to-tray on close.
             // On Linux/Wayland with decorations:false, the frontend

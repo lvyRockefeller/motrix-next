@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'Ukentlig',
   'interval-monthly': 'Månedlig',
   'interval-semi-annual': 'Halvårlig',
-  'interval-yearly': 'Årlig'
+  'interval-yearly': 'Årlig',
+  'upnp-mapping-started': 'UPnP-porttilordning aktivert',
+  'upnp-mapping-failed': 'UPnP-porttilordning mislyktes',
 }

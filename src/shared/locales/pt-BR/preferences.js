@@ -124,5 +124,7 @@ export default {
   'interval-weekly': 'Semanal',
   'interval-monthly': 'Mensal',
   'interval-semi-annual': 'Semestral',
-  'interval-yearly': 'Anual'
+  'interval-yearly': 'Anual',
+  'upnp-mapping-started': 'Mapeamento de portas UPnP ativado',
+  'upnp-mapping-failed': 'Falha no mapeamento de portas UPnP',
 }
